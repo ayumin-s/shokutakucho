@@ -6,6 +6,20 @@ const SUPABASE_ANON_KEY = 'ここにキー';
 // ============================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+function fatal(msg){
+  document.querySelector('main').innerHTML =
+    `<div class="err" style="padding:30px 0;">${msg}</div>`;
+  throw new Error(msg);
+}
+if(SUPABASE_URL.includes('ここに') || SUPABASE_ANON_KEY.includes('ここに')){
+  fatal('app.js の冒頭にある SUPABASE_URL と SUPABASE_ANON_KEY を、<br>Supabaseの値に書き換えてください。');
+}
+window.addEventListener('error', e => {
+  const m = document.querySelector('main');
+  if(m && !m.querySelector('.err')) m.innerHTML = `<div class="err" style="padding:30px 0;">${e.message}</div>`;
+});
+
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const SCENES = [
@@ -737,4 +751,7 @@ async function start(){
   await loadData();
   setTab('table');
 }
-start();
+start().catch(e => {
+  document.querySelector('main').innerHTML =
+    `<div class="err" style="padding:30px 0;">起動できませんでした。<br>${e.message}</div>`;
+});
