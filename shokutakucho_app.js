@@ -1,7 +1,7 @@
 // ============================================================
 // ▼▼▼ ここだけ書き換えてください ▼▼▼
-const SUPABASE_URL = 'https://ここにプロジェクトURL.supabase.co';
-const SUPABASE_ANON_KEY = 'ここにキー';
+const SUPABASE_URL = 'https://uxtahnqledjyrbttpckp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_9uBKiV3A21y3_3E03m87EQ_BWRQimxe';
 // ▲▲▲ ここだけ書き換えてください ▲▲▲
 // ============================================================
 
