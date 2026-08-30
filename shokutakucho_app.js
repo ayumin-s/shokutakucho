@@ -275,6 +275,39 @@ function renderShops(keepInput) {
 
   const areas = [...new Set(S.shops.map(s => s.area).filter(Boolean))].sort();
 
+  let listHtml = '';
+  if (!rows.length) {
+    listHtml += `<div class="empty">${S.shops.length ? '見つかりませんでした' : 'まだお店がありません。<br>右下の＋から登録しましょう。'}</div>`;
+  } else {
+    rows.forEach(s => {
+      const st = visitStats(s.id);
+      listHtml += `<article class="shop" data-open="${s.id}">
+        ${galleryHtml(s, 150)}
+        <div class="head">
+          ${S.picking ? `<button class="check" data-pick="${s.id}">${S.picked.has(s.id) ? '✓' : ''}</button>` : ''}
+          ${s.state === 'wish' ? `<span class="hand" style="font-size:14px;color:var(--rose);">${s.priority || 'someday'}</span>` : ''}
+          <span class="name">${esc(s.name)}</span>
+          ${st.count ? `<span class="en" style="font-size:10px;color:var(--rose-l);">★${st.avg}</span>` : ''}
+          <span class="badge ${s.state === 'wish' ? 'wish' : 'visited'}">${s.state === 'wish' ? 'まだ' : `${st.count}回`}</span>
+        </div>
+        <div class="meta">${[esc(s.area || ''), (s.scenes || []).map(sceneLabel).join(' ・ ')].filter(Boolean).join('　')}</div>
+        ${s.memo ? `<div class="memo">${esc(s.memo)}</div>` : ''}
+        <div class="acts">
+          <a href="${esc(mapUrl(s))}" target="_blank" rel="noopener" data-stop>MAP</a>
+          ${isMine() ? `<button data-edit="${s.id}">EDIT</button>` : ''}
+          ${isMine() && s.state === 'wish' ? `<button data-visit="${s.id}">VISITED</button>` : ''}
+        </div>
+      </article>`;
+    });
+  }
+
+  const v = $('shopsView');
+  if (keepInput && v.querySelector('#sList')) {
+    v.querySelector('#sList').innerHTML = listHtml;
+    bindShopRows(v);
+    return;
+  }
+
   let html = ownerSwitchHtml();
   html += `<div class="scenes">${SCENES.map(([k, en]) =>
     `<button class="scene ${S.scene === k ? 'on' : ''}" data-scene="${k}">${en}</button>`).join('')}</div>`;
@@ -300,38 +333,8 @@ function renderShops(keepInput) {
     </div>`;
   }
 
-  if (!rows.length) {
-    html += `<div class="empty">${S.shops.length ? '見つかりませんでした' : 'まだお店がありません。<br>右下の＋から登録しましょう。'}</div>`;
-  } else {
-    rows.forEach(s => {
-      const st = visitStats(s.id);
-      html += `<article class="shop" data-open="${s.id}">
-        ${galleryHtml(s, 150)}
-        <div class="head">
-          ${S.picking ? `<button class="check" data-pick="${s.id}">${S.picked.has(s.id) ? '✓' : ''}</button>` : ''}
-          ${s.state === 'wish' ? `<span class="hand" style="font-size:14px;color:var(--rose);">${s.priority || 'someday'}</span>` : ''}
-          <span class="name">${esc(s.name)}</span>
-          ${st.count ? `<span class="en" style="font-size:10px;color:var(--rose-l);">★${st.avg}</span>` : ''}
-          <span class="badge ${s.state === 'wish' ? 'wish' : 'visited'}">${s.state === 'wish' ? 'まだ' : `${st.count}回`}</span>
-        </div>
-        <div class="meta">${[esc(s.area || ''), (s.scenes || []).map(sceneLabel).join(' ・ ')].filter(Boolean).join('　')}</div>
-        ${s.memo ? `<div class="memo">${esc(s.memo)}</div>` : ''}
-        <div class="acts">
-          <a href="${esc(mapUrl(s))}" target="_blank" rel="noopener" data-stop>MAP</a>
-          ${isMine() ? `<button data-edit="${s.id}">EDIT</button>` : ''}
-          ${isMine() && s.state === 'wish' ? `<button data-visit="${s.id}">VISITED</button>` : ''}
-        </div>
-      </article>`;
-    });
-  }
   html += `<div id="sList">${listHtml}</div>`;
 
-  const v = $('shopsView');
-  if (keepInput && v.querySelector('#sList')) {
-    v.querySelector('#sList').innerHTML = listHtml;
-    bindShopRows(v);
-    return;
-  }
   v.innerHTML = html;
   bindOwnerSwitch(v);
   v.querySelectorAll('[data-scene]').forEach(b => b.onclick = () => {
